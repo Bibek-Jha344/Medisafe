@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - MEDISAFE</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/index.html" class="navbar-brand"><div class="brand-icon">🏥</div>MEDI<span>SAFE</span></a>
+        <div class="navbar-nav">
+            <a href="/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/notifications.html" class="nav-link active">Notifications</a>
+            <button onclick="logout()" class="nav-btn btn-nav-outline" style="color:#dc3545;border-color:#dc3545">Logout</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-layout" style="padding-top:var(--navbar-height)">
+        <aside class="sidebar">
+            <div class="sidebar-header"><div class="sidebar-user"><div class="sidebar-avatar" id="sidebar-avatar">U</div><div class="sidebar-user-info"><div class="name" id="sidebar-name">User</div><div class="role">Patient</div></div></div></div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-section"><div class="sidebar-section-title">Main</div><a href="/dashboard.html" class="sidebar-link"><i>🏠</i> Dashboard</a><a href="/notifications.html" class="sidebar-link active"><i>🔔</i> Notifications</a><a href="/settings.html" class="sidebar-link"><i>⚙️</i> Settings</a></div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="card">
+                <div class="card-header"><div class="card-title">🔔 Notifications</div></div>
+                <div class="card-body" id="notification-list"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw new Error('Not authenticated');
+        const user = Auth.getUser();
+        document.getElementById('sidebar-name').textContent = user?.name || 'User';
+        document.getElementById('sidebar-avatar').textContent = (user?.name || 'U').charAt(0).toUpperCase();
+
+        async function loadNotifications() {
+            try {
+                const data = await API.get('/notifications');
+                const items = data.notifications || [];
+                const list = document.getElementById('notification-list');
+                list.innerHTML = items.length ? items.map(n => `
+                    <div style="padding:16px 0; border-bottom:1px solid var(--border-light);">
+                        <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+                            <strong>${n.title}</strong>
+                            <span class="badge ${n.read ? 'badge-secondary' : 'badge-success'}">${n.read ? 'Read' : 'New'}</span>
+                        </div>
+                        <div style="font-size:13px; color:var(--text-light); margin-top:6px;">${n.message}</div>
+                        <div style="font-size:12px; color:var(--text-muted); margin-top:8px;">${DateUtils.format(n.createdAt)}</div>
+                    </div>
+                `).join('') : '<p style="color:var(--text-light); text-align:center;">No notifications at the moment.</p>';
+            } catch (error) {
+                Toast.error(error.message || 'Unable to load notifications');
+            }
+        }
+
+        loadNotifications();
+    </script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommendations - MEDISAFE</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .recommendation-layout { display:grid; grid-template-columns: 1.1fr 1fr; gap:24px; }
+        .tag { display:inline-block; background:var(--primary-light); color:var(--primary); padding:6px 10px; border-radius:999px; font-size:12px; font-weight:700; }
+        .insight-card { background:var(--bg-light); border:1px solid var(--border-light); border-radius:var(--radius-md); padding:16px; }
+        @media (max-width: 900px) { .recommendation-layout { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/index.html" class="navbar-brand"><div class="brand-icon">🏥</div>MEDI<span>SAFE</span></a>
+        <div class="navbar-nav">
+            <a href="/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/symptoms.html" class="nav-link">Symptoms</a>
+            <a href="/doctors.html" class="nav-link">Doctors</a>
+            <button onclick="logout()" class="nav-btn btn-nav-outline" style="color:#dc3545;border-color:#dc3545">Logout</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-layout" style="padding-top:var(--navbar-height)">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar" id="sidebar-avatar">U</div>
+                    <div class="sidebar-user-info"><div class="name" id="sidebar-name">User</div><div class="role">Patient</div></div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Main</div>
+                    <a href="/dashboard.html" class="sidebar-link"><i>🏠</i> Dashboard</a>
+                    <a href="/symptoms.html" class="sidebar-link"><i>🔍</i> Symptom Check</a>
+                    <a href="/recommendations.html" class="sidebar-link active"><i>💡</i> Recommendations</a>
+                </div>
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Healthcare</div>
+                    <a href="/doctors.html" class="sidebar-link"><i>👨‍⚕️</i> Find Doctors</a>
+                    <a href="/appointments.html" class="sidebar-link"><i>📅</i> Appointments</a>
+                    <a href="/prescriptions.html" class="sidebar-link"><i>💊</i> Prescriptions</a>
+                </div>
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Physiotherapy</div>
+                    <a href="/physiotherapy.html" class="sidebar-link"><i>🏃</i> Exercises</a>
+                    <a href="/progress.html" class="sidebar-link"><i>📊</i> Progress</a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">💡 Health Recommendations</div>
+                </div>
+                <div class="card-body recommendation-layout">
+                    <form id="recommendation-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="bodyPart" class="form-label">Affected body area</label>
+                                <select id="bodyPart" class="form-select" required>
+                                    <option value="">Select body area</option>
+                                    <option value="knee">Knee</option>
+                                    <option value="shoulder">Shoulder</option>
+                                    <option value="back">Back</option>
+                                    <option value="neck">Neck</option>
+                                    <option value="hip">Hip</option>
+                                    <option value="ankle">Ankle/Foot</option>
+                                    <option value="skin">Skin</option>
+                                    <option value="head">Head</option>
+                                    <option value="chest">Chest</option>
+                                    <option value="general">General</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="painLevel" class="form-label">Pain level (0-10)</label>
+                                <input type="number" id="painLevel" class="form-control" min="0" max="10" value="5">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="duration" class="form-label">Duration</label>
+                                <select id="duration" class="form-select">
+                                    <option value="less_than_week">Less than a week</option>
+                                    <option value="one_to_two_weeks" selected>1-2 weeks</option>
+                                    <option value="two_to_four_weeks">2-4 weeks</option>
+                                    <option value="more_than_month">More than a month</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="mobilityDifficulty" class="form-label">Mobility difficulty</label>
+                                <select id="mobilityDifficulty" class="form-select">
+                                    <option value="low">Normal / mild difficulty</option>
+                                    <option value="moderate" selected>Moderate difficulty</option>
+                                    <option value="high">High difficulty</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="symptoms" class="form-label">Symptoms</label>
+                            <textarea id="symptoms" class="form-control" rows="3" placeholder="Example: pain, stiffness, swelling"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="additionalNotes" class="form-label">Notes</label>
+                            <textarea id="additionalNotes" class="form-control" rows="3" placeholder="Add any additional context..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg">Generate Recommendation</button>
+                    </form>
+
+                    <div id="recommendation-output" class="insight-card">
+                        <div style="font-size:32px; margin-bottom:12px">📌</div>
+                        <h3 style="font-size:20px; font-weight:800; margin-bottom:8px">No analysis yet</h3>
+                        <p style="color:var(--text-light); margin-bottom:12px;">Complete the form to get a rule-based recommendation and specialist guidance.</p>
+                        <div class="tag">Professional review advised for serious symptoms</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw new Error('Not authenticated');
+        const user = Auth.getUser();
+        document.getElementById('sidebar-name').textContent = user?.name || 'User';
+        document.getElementById('sidebar-avatar').textContent = (user?.name || 'U').charAt(0).toUpperCase();
+
+        document.getElementById('recommendation-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                bodyPart: document.getElementById('bodyPart').value,
+                symptoms: document.getElementById('symptoms').value.split(',').map(x => x.trim()).filter(Boolean),
+                painLevel: Number(document.getElementById('painLevel').value || 5),
+                duration: document.getElementById('duration').value,
+                mobilityDifficulty: document.getElementById('mobilityDifficulty').value,
+                additionalNotes: document.getElementById('additionalNotes').value
+            };
+
+            try {
+                const response = await API.post('/recommendations', payload);
+                const result = response.recommendation || response;
+                const output = document.getElementById('recommendation-output');
+                output.innerHTML = `
+                    <div class="tag" style="margin-bottom:12px">${result.urgency?.toUpperCase() || 'ASSESSMENT'} PRIORITY</div>
+                    <h3 style="font-size:20px; font-weight:800; margin-bottom:12px">${result.recommendedSpecialties?.join(', ') || 'General care guidance'}</h3>
+                    <p style="color:var(--text-light); margin-bottom:12px">${result.urgencyMessage || 'Follow up with a medical professional when symptoms persist.'}</p>
+                    <div style="display:grid; gap:10px; margin-top:16px;">
+                        <div><strong>Condition phase:</strong> ${result.conditionPhase || 'Review needed'}</div>
+                        <div><strong>Physiotherapy:</strong> ${result.physiotherapyRecommended ? 'Recommended' : 'Optional'}</div>
+                        <div><strong>General guidance:</strong> ${result.generalGuidance || 'Monitor symptoms and rest as needed.'}</div>
+                    </div>
+                    <div style="margin-top:16px;">
+                        <strong>Recommended specialists:</strong>
+                        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;">
+                            ${(result.recommendedDoctors || []).map(doc => `<span class="tag">${doc.name}</span>`).join('') || '<span class="tag">General Physician</span>'}
+                        </div>
+                    </div>
+                    <div style="margin-top:16px;">
+                        <strong>Suggested exercises:</strong>
+                        <ul style="margin-top:8px; padding-left:18px; color:var(--text-medium);">
+                            ${(result.recommendedExerciseDetails || []).map(ex => `<li>${ex.name}</li>`).join('') || '<li>Basic mobility and gentle stretches</li>'}
+                        </ul>
+                    </div>
+                    <div style="margin-top:16px; font-size:12px; color:var(--text-light);">Disclaimer: This is a decision-support tool, not a medical diagnosis. Serious symptoms should be reviewed by a licensed healthcare professional.</div>
+                `;
+                Toast.success('Recommendation generated successfully.');
+            } catch (error) {
+                Toast.error(error.message || 'Unable to generate recommendation.');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symptom Assessment - MEDISAFE</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .symptom-page { max-width: 800px; margin: 0 auto; }
+        .step-panel { display: none; animation: fadeIn 0.3s ease; }
+        .step-panel.active { display: block; }
+        .pain-display { font-size:48px;font-weight:800;color:var(--primary);text-align:center;margin:16px 0; }
+        .pain-labels { display:flex;justify-content:space-between;font-size:12px;color:var(--text-light);margin-top:8px; }
+        .duration-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px; }
+        .duration-btn { padding:12px 16px;border:2px solid var(--border-light);border-radius:var(--radius);cursor:pointer;font-size:13px;font-weight:600;color:var(--text-medium);background:white;transition:var(--transition);text-align:center; }
+        .duration-btn:hover, .duration-btn.selected { border-color:var(--primary);background:var(--primary-light);color:var(--primary); }
+        .mobility-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:12px; }
+        .mobility-btn { padding:20px 12px;border:2px solid var(--border-light);border-radius:var(--radius-md);cursor:pointer;text-align:center;font-size:13px;font-weight:600;color:var(--text-medium);background:white;transition:var(--transition); }
+        .mobility-btn:hover, .mobility-btn.selected { border-color:var(--primary);background:var(--primary-light);color:var(--primary); }
+        .mobility-btn .emoji { font-size:32px;display:block;margin-bottom:8px; }
+        .step-actions { display:flex;justify-content:space-between;margin-top:32px;align-items:center; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/index.html" class="navbar-brand">
+            <div class="brand-icon">🏥</div>
+            MEDI<span>SAFE</span>
+        </a>
+        <div class="navbar-nav">
+            <div id="nav-auth" style="display:flex;gap:8px;align-items:center">
+                <a href="/login.html" class="nav-btn btn-nav-primary">Login</a>
+            </div>
+            <div id="nav-user" style="display:none;gap:8px;align-items:center">
+                <a href="/dashboard.html" class="nav-link">Dashboard</a>
+                <button onclick="logout()" class="nav-btn btn-nav-outline" style="color:#dc3545;border-color:#dc3545">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div style="padding-top:calc(var(--navbar-height) + 32px);padding-bottom:60px;min-height:100vh;background:var(--bg-lighter)">
+        <div class="container">
+            <div class="symptom-page">
+                <div style="text-align:center;margin-bottom:32px">
+                    <h1 style="font-size:28px;font-weight:800;color:var(--text-dark)">Symptom Assessment</h1>
+                    <p style="color:var(--text-light)">Answer a few questions to get personalized healthcare recommendations</p>
+                </div>
+
+                <!-- Stepper -->
+                <div class="symptom-stepper" style="margin-bottom:32px">
+                    <div class="step-item">
+                        <div class="step-circle active" id="step-circle-1">1</div>
+                        <div class="step-label active" id="step-label-1">Body Part</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle" id="step-circle-2">2</div>
+                        <div class="step-label" id="step-label-2">Symptoms</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle" id="step-circle-3">3</div>
+                        <div class="step-label" id="step-label-3">Pain Level</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle" id="step-circle-4">4</div>
+                        <div class="step-label" id="step-label-4">Duration</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-circle" id="step-circle-5">5</div>
+                        <div class="step-label" id="step-label-5">Mobility</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+
+                        <!-- Step 1: Body Part -->
+                        <div class="step-panel active" id="panel-1">
+                            <h2 style="font-size:18px;font-weight:700;margin-bottom:8px">Where is the pain or discomfort?</h2>
+                            <p style="color:var(--text-light);font-size:14px;margin-bottom:20px">Select the body area that is most affected</p>
+                            <div class="body-part-grid">
+                                <button class="body-part-btn" data-part="head">
+                                    <span class="emoji">🧠</span>Head/Brain
+                                </button>
+                                <button class="body-part-btn" data-part="neck">
+                                    <span class="emoji">🔒</span>Neck
+                                </button>
+                                <button class="body-part-btn" data-part="shoulder">
+                                    <span class="emoji">💪</span>Shoulder
+                                </button>
+                                <button class="body-part-btn" data-part="chest">
+                                    <span class="emoji">❤️</span>Chest
+                                </button>
+                                <button class="body-part-btn" data-part="back">
+                                    <span class="emoji">🦴</span>Back
+                                </button>
+                                <button class="body-part-btn" data-part="hip">
+                                    <span class="emoji">⚪</span>Hip
+                                </button>
+                                <button class="body-part-btn" data-part="knee">
+                                    <span class="emoji">🦵</span>Knee
+                                </button>
+                                <button class="body-part-btn" data-part="ankle">
+                                    <span class="emoji">🦶</span>Ankle/Foot
+                                </button>
+                                <button class="body-part-btn" data-part="skin">
+                                    <span class="emoji">🩹</span>Skin
+                                </button>
+                                <button class="body-part-btn" data-part="general">
+                                    <span class="emoji">🌡️</span>General
+                                </button>
+                            </div>
+                            <div class="step-actions">
+                                <span></span>
+                                <button class="btn btn-primary" onclick="nextStep()" id="step1-next" disabled>Next →</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Symptoms -->
+                        <div class="step-panel" id="panel-2">
+                            <h2 style="font-size:18px;font-weight:700;margin-bottom:8px">What symptoms are you experiencing?</h2>
+                            <p style="color:var(--text-light);font-size:14px;margin-bottom:20px">Select all that apply</p>
+                            <div class="symptom-grid" id="symptom-checkboxes">
+                                <!-- Dynamically populated based on body part -->
+                            </div>
+                            <div class="step-actions">
+                                <button class="btn btn-outline" onclick="prevStep()">← Back</button>
+                                <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Pain Level -->
+                        <div class="step-panel" id="panel-3">
+                            <h2 style="font-size:18px;font-weight:700;margin-bottom:8px">Rate your pain level</h2>
+                            <p style="color:var(--text-light);font-size:14px;margin-bottom:20px">On a scale of 0 (no pain) to 10 (worst possible)</p>
+                            <div class="pain-display" id="pain-display">5</div>
+                            <input type="range" class="pain-slider" id="pain-slider" min="0" max="10" value="5">
+                            <div class="pain-labels">
+                                <span>0 - No pain</span>
+                                <span>5 - Moderate</span>
+                                <span>10 - Unbearable</span>
+                            </div>
+                            <div id="pain-description" style="text-align:center;margin-top:16px;padding:12px;border-radius:var(--radius);font-weight:600;font-size:14px"></div>
+                            <div class="step-actions">
+                                <button class="btn btn-outline" onclick="prevStep()">← Back</button>
+                                <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Duration -->
+                        <div class="step-panel" id="panel-4">
+                            <h2 style="font-size:18px;font-weight:700;margin-bottom:8px">How long have you had this symptom?</h2>
+                            <p style="color:var(--text-light);font-size:14px;margin-bottom:20px">Select the closest duration</p>
+                            <div class="duration-grid">
+                                <button class="duration-btn" data-duration="less_than_week">⚡ Less than a week</button>
+                                <button class="duration-btn" data-duration="one_to_two_weeks">📅 1-2 weeks</button>
+                                <button class="duration-btn" data-duration="two_to_four_weeks">📆 2-4 weeks</button>
+                                <button class="duration-btn" data-duration="more_than_month">📅 More than a month</button>
+                            </div>
+                            <div class="step-actions">
+                                <button class="btn btn-outline" onclick="prevStep()">← Back</button>
+                                <button class="btn btn-primary" onclick="nextStep()" id="step4-next" disabled>Next →</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 5: Mobility -->
+                        <div class="step-panel" id="panel-5">
+                            <h2 style="font-size:18px;font-weight:700;margin-bottom:8px">How is your mobility affected?</h2>
+                            <p style="color:var(--text-light);font-size:14px;margin-bottom:20px">How difficult is it to perform daily activities?</p>
+                            <div class="mobility-grid">
+                                <button class="mobility-btn" data-mobility="low">
+                                    <span class="emoji">🟢</span>Mild<br><small style="font-weight:400;color:var(--text-light)">Slight difficulty, mostly normal</small>
+                                </button>
+                                <button class="mobility-btn" data-mobility="moderate">
+                                    <span class="emoji">🟡</span>Moderate<br><small style="font-weight:400;color:var(--text-light)">Some limitation in activities</small>
+                                </button>
+                                <button class="mobility-btn" data-mobility="high">
+                                    <span class="emoji">🔴</span>Severe<br><small style="font-weight:400;color:var(--text-light)">Significant difficulty moving</small>
+                                </button>
+                            </div>
+                            <div class="form-group" style="margin-top:24px">
+                                <label class="form-label">Additional Notes (optional)</label>
+                                <textarea id="additional-notes" class="form-control" placeholder="Describe any other relevant symptoms or context..."></textarea>
+                            </div>
+                            <div class="step-actions">
+                                <button class="btn btn-outline" onclick="prevStep()">← Back</button>
+                                <button class="btn btn-primary" onclick="submitSymptoms()" id="analyze-btn" disabled>🔍 Analyze Symptoms</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        let currentStep = 1;
+        let selectedBodyPart = null;
+        let selectedSymptoms = [];
+        let painLevel = 5;
+        let selectedDuration = null;
+        let selectedMobility = null;
+
+        const allSymptoms = {
+            knee: ['Pain', 'Swelling', 'Stiffness', 'Clicking sound', 'Weakness', 'Instability', 'Warmth', 'Bruising'],
+            shoulder: ['Pain', 'Stiffness', 'Weakness', 'Limited range', 'Swelling', 'Clicking', 'Numbness', 'Tingling'],
+            back: ['Pain', 'Stiffness', 'Muscle spasm', 'Numbness', 'Tingling', 'Weakness', 'Limited movement'],
+            neck: ['Pain', 'Stiffness', 'Headache', 'Numbness in arms', 'Tingling', 'Dizziness', 'Limited rotation'],
+            hip: ['Pain', 'Stiffness', 'Limited movement', 'Limping', 'Weakness', 'Swelling', 'Clicking'],
+            ankle: ['Pain', 'Swelling', 'Bruising', 'Stiffness', 'Instability', 'Difficulty walking'],
+            head: ['Headache', 'Dizziness', 'Nausea', 'Sensitivity to light', 'Blurred vision', 'Memory issues'],
+            chest: ['Chest pain', 'Shortness of breath', 'Palpitations', 'Pressure feeling', 'Radiating arm pain'],
+            skin: ['Rash', 'Itching', 'Redness', 'Swelling', 'Blistering', 'Peeling', 'Discoloration'],
+            general: ['Fever', 'Fatigue', 'Loss of appetite', 'Body ache', 'Nausea', 'Weakness', 'Chills']
+        };
+
+        document.querySelectorAll('.body-part-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.body-part-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedBodyPart = this.dataset.part;
+                document.getElementById('step1-next').disabled = false;
+                populateSymptoms(selectedBodyPart);
+            });
+        });
+
+        function populateSymptoms(part) {
+            const symptoms = allSymptoms[part] || allSymptoms.general;
+            const container = document.getElementById('symptom-checkboxes');
+            container.innerHTML = symptoms.map(s => `
+                <div class="symptom-check" onclick="toggleSymptom(this, '${s.toLowerCase()}')">
+                    <div class="checkmark"></div>
+                    ${s}
+                </div>
+            `).join('');
+        }
+
+        function toggleSymptom(el, symptom) {
+            el.classList.toggle('checked');
+            const checkmark = el.querySelector('.checkmark');
+            if (el.classList.contains('checked')) {
+                selectedSymptoms.push(symptom);
+                checkmark.textContent = '✓';
+            } else {
+                selectedSymptoms = selectedSymptoms.filter(s => s !== symptom);
+                checkmark.textContent = '';
+            }
+        }
+
+        const painSlider = document.getElementById('pain-slider');
+        const painDisplay = document.getElementById('pain-display');
+        const painDesc = document.getElementById('pain-description');
+
+        const painDescriptions = [
+            { min: 0, max: 2, text: 'No significant pain - minimal discomfort', bg: '#d1e7dd', color: '#0a3622' },
+            { min: 3, max: 4, text: 'Mild pain - noticeable but manageable', bg: '#fff3cd', color: '#664d03' },
+            { min: 5, max: 6, text: 'Moderate pain - interferes with activities', bg: '#fff3cd', color: '#664d03' },
+            { min: 7, max: 8, text: 'Severe pain - significantly limits function', bg: '#f8d7da', color: '#58151c' },
+            { min: 9, max: 10, text: 'Extreme pain - unbearable, seek immediate care', bg: '#f8d7da', color: '#58151c' }
+        ];
+
+        painSlider.addEventListener('input', function() {
+            painLevel = parseInt(this.value);
+            painDisplay.textContent = painLevel;
+            const desc = painDescriptions.find(d => painLevel >= d.min && painLevel <= d.max);
+            if (desc) {
+                painDesc.textContent = desc.text;
+                painDesc.style.background = desc.bg;
+                painDesc.style.color = desc.color;
+            }
+        });
+
+        // Trigger initial pain description
+        painSlider.dispatchEvent(new Event('input'));
+
+        document.querySelectorAll('.duration-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.duration-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedDuration = this.dataset.duration;
+                document.getElementById('step4-next').disabled = false;
+            });
+        });
+
+        document.querySelectorAll('.mobility-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.mobility-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedMobility = this.dataset.mobility;
+                document.getElementById('analyze-btn').disabled = false;
+            });
+        });
+
+        function nextStep() {
+            if (currentStep < 5) {
+                document.getElementById(`panel-${currentStep}`).classList.remove('active');
+                updateStepper(currentStep, 'completed');
+                currentStep++;
+                document.getElementById(`panel-${currentStep}`).classList.add('active');
+                updateStepper(currentStep, 'active');
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                document.getElementById(`panel-${currentStep}`).classList.remove('active');
+                updateStepper(currentStep, 'normal');
+                currentStep--;
+                document.getElementById(`panel-${currentStep}`).classList.add('active');
+                updateStepper(currentStep, 'active');
+            }
+        }
+
+        function updateStepper(step, state) {
+            const circle = document.getElementById(`step-circle-${step}`);
+            const label = document.getElementById(`step-label-${step}`);
+            circle.className = 'step-circle';
+            label.className = 'step-label';
+            if (state === 'active') { circle.classList.add('active'); label.classList.add('active'); }
+            else if (state === 'completed') { circle.classList.add('completed'); circle.textContent = '✓'; }
+        }
+
+        async function submitSymptoms() {
+            if (!selectedBodyPart || !selectedDuration || !selectedMobility) {
+                Toast.warning('Please complete all steps before analyzing.');
+                return;
+            }
+
+            const btn = document.getElementById('analyze-btn');
+            Form.setLoading(btn, true);
+
+            const symptomData = {
+                bodyPart: selectedBodyPart,
+                symptoms: selectedSymptoms,
+                painLevel: painLevel,
+                duration: selectedDuration,
+                mobilityDifficulty: selectedMobility,
+                additionalNotes: document.getElementById('additional-notes').value
+            };
+
+            // Store for recommendations page
+            sessionStorage.setItem('symptomData', JSON.stringify(symptomData));
+
+            try {
+                let result;
+                if (Auth.isLoggedIn()) {
+                    result = await API.post('/symptoms/analyze', symptomData);
+                } else {
+                    // Use client-side rule engine if not logged in
+                    result = clientSideAnalyze(symptomData);
+                }
+                sessionStorage.setItem('recommendationResult', JSON.stringify(result));
+                window.location.href = '/recommendations.html';
+            } catch (err) {
+                // Fallback to client-side analysis
+                const result = clientSideAnalyze(symptomData);
+                sessionStorage.setItem('recommendationResult', JSON.stringify(result));
+                window.location.href = '/recommendations.html';
+            }
+        }
+
+        // Client-side rule engine (mirrors backend)
+        function clientSideAnalyze(data) {
+            const { bodyPart, painLevel, duration, mobilityDifficulty, symptoms } = data;
+            const urgency = painLevel >= 8 ? 'high' : painLevel >= 5 ? 'moderate' : 'low';
+            const specialtyMap = {
+                knee: ['Orthopedic Surgeon', 'Physiotherapist'],
+                shoulder: ['Orthopedic Surgeon', 'Physiotherapist'],
+                back: ['Orthopedic Surgeon', 'Physiotherapist'],
+                neck: ['Orthopedic Surgeon', 'Neurologist'],
+                hip: ['Orthopedic Surgeon', 'Physiotherapist'],
+                ankle: ['Orthopedic Surgeon', 'Physiotherapist'],
+                skin: ['Dermatologist'],
+                chest: ['Cardiologist', 'General Physician'],
+                head: ['Neurologist', 'General Physician'],
+                general: ['General Physician']
+            };
+            return {
+                success: true,
+                bodyPart, symptoms, painLevel, duration, mobilityDifficulty,
+                urgency,
+                urgencyMessage: urgency === 'high' ? 'Severe symptoms detected. Please seek professional help soon.' :
+                    urgency === 'moderate' ? 'Schedule a consultation with the recommended specialist.' :
+                    'Mild symptoms. Self-care and guided exercises may help.',
+                urgencyColor: urgency === 'high' ? 'red' : urgency === 'moderate' ? 'orange' : 'green',
+                recommendedSpecialties: specialtyMap[bodyPart] || ['General Physician'],
+                physiotherapyRecommended: ['knee','shoulder','back','neck','hip','ankle'].includes(bodyPart),
+                generalGuidance: 'Rest the affected area. Apply ice for swelling. Consult a doctor if symptoms worsen.',
+                rulesApplied: [
+                    `Body Part Rule: ${bodyPart} → ${(specialtyMap[bodyPart] || ['General Physician']).join(', ')}`,
+                    `Pain Level Rule: Level ${painLevel}/10 → Urgency: ${urgency}`,
+                    `Duration Rule: ${duration}`,
+                    `Mobility Rule: ${mobilityDifficulty} difficulty`
+                ]
+            };
+        }
+    </script>
+</body>
+</html>

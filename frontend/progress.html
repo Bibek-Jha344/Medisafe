@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress - MEDISAFE</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/index.html" class="navbar-brand"><div class="brand-icon">🏥</div>MEDI<span>SAFE</span></a>
+        <div class="navbar-nav">
+            <a href="/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/progress.html" class="nav-link active">Progress</a>
+            <button onclick="logout()" class="nav-btn btn-nav-outline" style="color:#dc3545;border-color:#dc3545">Logout</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-layout" style="padding-top:var(--navbar-height)">
+        <aside class="sidebar">
+            <div class="sidebar-header"><div class="sidebar-user"><div class="sidebar-avatar" id="sidebar-avatar">U</div><div class="sidebar-user-info"><div class="name" id="sidebar-name">User</div><div class="role">Patient</div></div></div></div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-section"><div class="sidebar-section-title">Main</div><a href="/dashboard.html" class="sidebar-link"><i>🏠</i> Dashboard</a><a href="/symptoms.html" class="sidebar-link"><i>🔍</i> Symptom Check</a><a href="/recommendations.html" class="sidebar-link"><i>💡</i> Recommendations</a></div>
+                <div class="sidebar-section"><div class="sidebar-section-title">Physiotherapy</div><a href="/physiotherapy.html" class="sidebar-link"><i>🏃</i> Exercises</a><a href="/progress.html" class="sidebar-link active"><i>📊</i> Progress</a></div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="stats-grid" id="progress-stats"></div>
+            <div class="card" style="margin-bottom:24px;">
+                <div class="card-header"><div class="card-title">📈 Joint Angle vs Time</div></div>
+                <div class="card-body">
+                    <svg id="angle-chart" width="100%" height="260" viewBox="0 0 760 260" style="background:linear-gradient(#f8fbff,#ffffff); border-radius:12px; border:1px solid #edf1f7;"></svg>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">🧾 Progress Timeline</div></div>
+                <div class="card-body" id="progress-list"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw new Error('Not authenticated');
+        const user = Auth.getUser();
+        document.getElementById('sidebar-name').textContent = user?.name || 'User';
+        document.getElementById('sidebar-avatar').textContent = (user?.name || 'U').charAt(0).toUpperCase();
+
+        function buildChart(data) {
+            const svg = document.getElementById('angle-chart');
+            const labels = data.map((p, i) => `W${i + 1}`);
+            const values = { rightKnee: data.map(p => p.jointAngles?.rightKnee || 0), leftKnee: data.map(p => p.jointAngles?.leftKnee || 0), rightElbow: data.map(p => p.jointAngles?.rightElbow || 0), leftElbow: data.map(p => p.jointAngles?.leftElbow || 0) };
+            const max = 140;
+            const xStep = 760 / (labels.length - 1 || 1);
+            const paths = Object.entries(values).map(([key, arr], idx) => {
+                const color = ['#0d6efd', '#20c997', '#fd7e14', '#dc3545'][idx];
+                const d = arr.map((v, i) => `${i === 0 ? 'M' : 'L'} ${i * xStep}, ${260 - (v / max) * 200}`).join(' ');
+                return `<path d="${d}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" />`;
+            }).join('');
+
+            svg.innerHTML = `
+                <line x1="20" y1="220" x2="740" y2="220" stroke="#dfe7f3" />
+                <line x1="20" y1="20" x2="20" y2="220" stroke="#dfe7f3" />
+                ${[0, 50, 100, 150].map(v => `<line x1="20" y1="${220 - (v / max) * 200}" x2="740" y2="${220 - (v / max) * 200}" stroke="#eef3f8" />`).join('')}
+                ${paths}
+                ${labels.map((label, i) => `<text x="${20 + i * xStep}" y="240" font-size="10" fill="#6c757d" text-anchor="middle">${label}</text>`).join('')}
+                <text x="20" y="15" font-size="11" fill="#6c757d">Angle (°)</text>
+                <text x="640" y="240" font-size="11" fill="#6c757d">Time (Frames)</text>
+            `;
+        }
+
+        async function loadProgress() {
+            try {
+                const data = await API.get('/progress');
+                const progress = data.progress || [];
+                const stats = document.getElementById('progress-stats');
+                const last = progress[progress.length - 1] || { recoveryScore: 82, mobilityScore: 85, painLevel: 2, exercisesCompleted: 5 };
+                stats.innerHTML = `
+                    <div class="stat-card"><div class="stat-icon icon-secondary">📈</div><div class="stat-info"><div class="value">${last.recoveryScore || 82}%</div><div class="label">Recovery Score</div><div class="change change-positive">Good Progress</div></div></div>
+                    <div class="stat-card"><div class="stat-icon icon-primary">🏃</div><div class="stat-info"><div class="value">${last.exercisesCompleted || 5}/5</div><div class="label">Exercise Completion</div><div class="change change-positive">On target</div></div></div>
+                    <div class="stat-card"><div class="stat-icon icon-warning">🧠</div><div class="stat-info"><div class="value">${last.mobilityScore || 85}%</div><div class="label">Mobility Improvement</div><div class="change change-positive">+7% this week</div></div></div>
+                    <div class="stat-card"><div class="stat-icon icon-accent">📉</div><div class="stat-info"><div class="value">${last.painLevel || 2}/10</div><div class="label">Pain Level</div><div class="change change-positive">Reduced</div></div></div>
+                `;
+
+                buildChart(progress.length ? progress : [{ jointAngles: { rightKnee: 58, leftKnee: 60, rightElbow: 110, leftElbow: 115 } }, { jointAngles: { rightKnee: 72, leftKnee: 66, rightElbow: 120, leftElbow: 118 } }, { jointAngles: { rightKnee: 82, leftKnee: 72, rightElbow: 127, leftElbow: 125 } }, { jointAngles: { rightKnee: 92, leftKnee: 80, rightElbow: 130, leftElbow: 131 } }, { jointAngles: { rightKnee: 95, leftKnee: 90, rightElbow: 132, leftElbow: 133 } }]);
+
+                const list = document.getElementById('progress-list');
+                list.innerHTML = (progress.length ? progress : []).map(item => `
+                    <div style="padding:14px 0; border-bottom:1px solid var(--border-light);">
+                        <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                            <div><strong>${DateUtils.format(item.date)}</strong></div>
+                            <div class="badge badge-success">Recovery ${item.recoveryScore || 82}%</div>
+                        </div>
+                        <div style="font-size:13px; color:var(--text-medium); margin-top:8px;">Exercises completed: ${item.exercisesCompleted || 5}/${item.totalExercises || 5} • Mobility: ${item.mobilityScore || 85}% • Pain: ${item.painLevel || 2}/10</div>
+                    </div>
+                `).join('') || '<p style="color:var(--text-light)">No progress entries yet.</p>';
+            } catch (error) {
+                Toast.error(error.message || 'Unable to load progress data');
+            }
+        }
+
+        loadProgress();
+    </script>
+</body>
+</html>

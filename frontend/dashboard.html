@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - MEDISAFE</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .quick-actions { display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-bottom:28px; }
+        .quick-action {
+            background:var(--bg-white);border-radius:var(--radius-md);padding:20px 16px;text-align:center;
+            border:1px solid var(--border-light);cursor:pointer;transition:var(--transition);text-decoration:none;
+        }
+        .quick-action:hover { transform:translateY(-4px);box-shadow:var(--shadow);border-color:var(--primary); }
+        .quick-action .qa-icon { font-size:28px;margin-bottom:8px; }
+        .quick-action .qa-label { font-size:13px;font-weight:600;color:var(--text-dark); }
+        .dashboard-grid { display:grid;grid-template-columns:2fr 1fr;gap:24px; }
+        .appointment-item { display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border-light); }
+        .appointment-item:last-child { border-bottom:none; }
+        .apt-date { width:48px;height:48px;border-radius:var(--radius);background:var(--primary-light);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0; }
+        .apt-date .day { font-size:16px;font-weight:800;color:var(--primary);line-height:1; }
+        .apt-date .month { font-size:11px;color:var(--primary);font-weight:600; }
+        @media(max-width:900px){.dashboard-grid{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/index.html" class="navbar-brand">
+            <div class="brand-icon">🏥</div>
+            MEDI<span>SAFE</span>
+        </a>
+        <div class="navbar-nav">
+            <div id="nav-auth" style="display:flex;gap:8px;align-items:center">
+                <a href="/login.html" class="nav-btn btn-nav-outline">Login</a>
+            </div>
+            <div id="nav-user" style="display:none;gap:8px;align-items:center">
+                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0d6efd,#20c997);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;cursor:pointer;font-size:14px" onclick="window.location='/profile.html'">
+                    <span id="nav-user-name">U</span>
+                </div>
+                <button onclick="logout()" class="nav-btn btn-nav-outline" style="color:#dc3545;border-color:#dc3545">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar" id="sidebar-avatar">B</div>
+                    <div class="sidebar-user-info">
+                        <div class="name" id="sidebar-name">Loading...</div>
+                        <div class="role">Patient</div>
+                    </div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Main</div>
+                    <a href="/dashboard.html" class="sidebar-link active"><i>🏠</i> Dashboard</a>
+                    <a href="/symptoms.html" class="sidebar-link"><i>🔍</i> Symptom Check</a>
+                    <a href="/recommendations.html" class="sidebar-link"><i>💡</i> Recommendations</a>
+                </div>
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Healthcare</div>
+                    <a href="/doctors.html" class="sidebar-link"><i>👨‍⚕️</i> Find Doctors</a>
+                    <a href="/appointments.html" class="sidebar-link"><i>📅</i> Appointments</a>
+                    <a href="/prescriptions.html" class="sidebar-link"><i>💊</i> Prescriptions</a>
+                </div>
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Physiotherapy</div>
+                    <a href="/physiotherapy.html" class="sidebar-link"><i>🏃</i> Exercises</a>
+                    <a href="/progress.html" class="sidebar-link"><i>📊</i> Progress</a>
+                </div>
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Account</div>
+                    <a href="/profile.html" class="sidebar-link"><i>👤</i> Profile</a>
+                    <a href="#" onclick="logout()" class="sidebar-link" style="color:var(--danger)"><i>🚪</i> Logout</a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Welcome -->
+            <div style="margin-bottom:24px">
+                <h1 style="font-size:24px;font-weight:800;color:var(--text-dark);margin-bottom:6px">
+                    Good day, <span id="welcome-name">User</span>! 👋
+                </h1>
+                <p style="color:var(--text-light);font-size:15px">Here's your health overview for today.</p>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon icon-primary">📅</div>
+                    <div class="stat-info">
+                        <div class="value" id="stat-appointments">-</div>
+                        <div class="label">Appointments</div>
+                        <div class="change change-positive" id="stat-upcoming">- upcoming</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon icon-secondary">💊</div>
+                    <div class="stat-info">
+                        <div class="value" id="stat-prescriptions">-</div>
+                        <div class="label">Prescriptions</div>
+                        <div class="change" style="color:var(--text-light)">On record</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon icon-warning">📊</div>
+                    <div class="stat-info">
+                        <div class="value" id="stat-recovery">82%</div>
+                        <div class="label">Recovery Score</div>
+                        <div class="change change-positive">+7% this week</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon icon-accent">🏃</div>
+                    <div class="stat-info">
+                        <div class="value" id="stat-exercises">5/5</div>
+                        <div class="label">Exercises Today</div>
+                        <div class="change change-positive">Completed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <a href="/symptoms.html" class="quick-action">
+                    <div class="qa-icon">🔍</div>
+                    <div class="qa-label">Check Symptoms</div>
+                </a>
+                <a href="/doctors.html" class="quick-action">
+                    <div class="qa-icon">👨‍⚕️</div>
+                    <div class="qa-label">Find Doctor</div>
+                </a>
+                <a href="/appointments.html" class="quick-action">
+                    <div class="qa-icon">📅</div>
+                    <div class="qa-label">Book Appointment</div>
+                </a>
+                <a href="/physiotherapy.html" class="quick-action">
+                    <div class="qa-icon">🏃</div>
+                    <div class="qa-label">Exercises</div>
+                </a>
+                <a href="/prescriptions.html" class="quick-action">
+                    <div class="qa-icon">💊</div>
+                    <div class="qa-label">Prescriptions</div>
+                </a>
+                <a href="/progress.html" class="quick-action">
+                    <div class="qa-icon">📊</div>
+                    <div class="qa-label">View Progress</div>
+                </a>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Left Column -->
+                <div>
+                    <!-- Upcoming Appointments -->
+                    <div class="card" style="margin-bottom:24px">
+                        <div class="card-header">
+                            <div class="card-title">📅 Upcoming Appointments</div>
+                            <a href="/appointments.html" class="btn btn-outline btn-sm">View All</a>
+                        </div>
+                        <div class="card-body" id="upcoming-appointments">
+                            <div style="text-align:center;padding:20px">
+                                <div class="loading-spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Prescriptions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">💊 Recent Prescriptions</div>
+                            <a href="/prescriptions.html" class="btn btn-outline btn-sm">View All</a>
+                        </div>
+                        <div class="card-body" id="recent-prescriptions">
+                            <div style="text-align:center;padding:20px">
+                                <div class="loading-spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div>
+                    <!-- Recovery Progress -->
+                    <div class="card" style="margin-bottom:24px">
+                        <div class="card-header">
+                            <div class="card-title">📊 Recovery Progress</div>
+                        </div>
+                        <div class="card-body" style="text-align:center">
+                            <div class="progress-ring-wrapper">
+                                <div class="progress-ring">
+                                    <svg width="140" height="140" viewBox="0 0 140 140">
+                                        <circle cx="70" cy="70" r="58" fill="none" stroke="#e9ecef" stroke-width="12"/>
+                                        <circle id="progress-circle" cx="70" cy="70" r="58" fill="none" stroke="#20c997" stroke-width="12"
+                                            stroke-dasharray="364" stroke-dashoffset="66" stroke-linecap="round"/>
+                                    </svg>
+                                    <div class="progress-ring-text">
+                                        <div class="value">82%</div>
+                                        <div class="label">Recovery</div>
+                                    </div>
+                                </div>
+                                <p style="margin-top:12px;font-size:14px;font-weight:700;color:var(--secondary)">Good Progress</p>
+                                <p style="font-size:12px;color:var(--text-light)">Based on 6 sessions</p>
+                            </div>
+                            <div style="margin-top:20px">
+                                <div class="progress-bar-wrapper">
+                                    <div class="progress-bar-label"><span>Pain Level</span><span>2/10</span></div>
+                                    <div class="progress-bar"><div class="progress-bar-fill progress-secondary" style="width:20%"></div></div>
+                                </div>
+                                <div class="progress-bar-wrapper">
+                                    <div class="progress-bar-label"><span>Mobility</span><span>85%</span></div>
+                                    <div class="progress-bar"><div class="progress-bar-fill progress-primary" style="width:85%"></div></div>
+                                </div>
+                            </div>
+                            <a href="/progress.html" class="btn btn-outline btn-sm btn-block" style="margin-top:16px">View Full Progress</a>
+                        </div>
+                    </div>
+
+                    <!-- Health Tips -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">💡 Health Tips</div>
+                        </div>
+                        <div class="card-body">
+                            <div style="display:flex;flex-direction:column;gap:12px">
+                                <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--bg-lighter);border-radius:var(--radius)">
+                                    <span style="font-size:20px">💧</span>
+                                    <div>
+                                        <div style="font-size:13px;font-weight:600;color:var(--text-dark)">Stay Hydrated</div>
+                                        <div style="font-size:12px;color:var(--text-light)">Drink 8 glasses of water daily for joint health</div>
+                                    </div>
+                                </div>
+                                <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--bg-lighter);border-radius:var(--radius)">
+                                    <span style="font-size:20px">🧘</span>
+                                    <div>
+                                        <div style="font-size:13px;font-weight:600;color:var(--text-dark)">Morning Stretches</div>
+                                        <div style="font-size:12px;color:var(--text-light)">5-minute morning stretching improves mobility</div>
+                                    </div>
+                                </div>
+                                <div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--bg-lighter);border-radius:var(--radius)">
+                                    <span style="font-size:20px">😴</span>
+                                    <div>
+                                        <div style="font-size:13px;font-weight:600;color:var(--text-dark)">Quality Sleep</div>
+                                        <div style="font-size:12px;color:var(--text-light)">7-8 hours of sleep aids muscle recovery</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw new Error('Not authenticated');
+        const user = Auth.getUser();
+
+        document.getElementById('welcome-name').textContent = user?.name?.split(' ')[0] || 'User';
+        const sidebarName = document.getElementById('sidebar-name');
+        if (sidebarName) sidebarName.textContent = user?.name || 'User';
+        const sidebarAvatar = document.getElementById('sidebar-avatar');
+        if (sidebarAvatar) sidebarAvatar.textContent = user?.name?.[0]?.toUpperCase() || 'U';
+
+        async function loadDashboard() {
+            try {
+                // Load appointments
+                const aptsData = await API.get('/appointments');
+                const apts = aptsData.appointments || [];
+                const upcoming = apts.filter(a => a.status !== 'cancelled' && new Date(a.date) > new Date());
+                document.getElementById('stat-appointments').textContent = apts.length;
+                document.getElementById('stat-upcoming').textContent = `${upcoming.length} upcoming`;
+
+                const aptsContainer = document.getElementById('upcoming-appointments');
+                if (upcoming.length === 0) {
+                    aptsContainer.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-light)">
+                        <div style="font-size:32px;margin-bottom:8px">📅</div>
+                        <p>No upcoming appointments</p>
+                        <a href="/appointments.html" class="btn btn-primary btn-sm" style="margin-top:8px">Book Now</a>
+                    </div>`;
+                } else {
+                    aptsContainer.innerHTML = upcoming.slice(0, 3).map(a => {
+                        const d = new Date(a.date);
+                        return `<div class="appointment-item">
+                            <div class="apt-date">
+                                <div class="day">${d.getDate()}</div>
+                                <div class="month">${d.toLocaleString('en', {month:'short'})}</div>
+                            </div>
+                            <div style="flex:1">
+                                <div style="font-weight:700;font-size:14px">${a.doctorName}</div>
+                                <div style="font-size:12px;color:var(--text-light)">${a.specialty} • ${DateUtils.formatTime(a.time)}</div>
+                            </div>
+                            ${statusBadge(a.status)}
+                        </div>`;
+                    }).join('');
+                }
+            } catch (e) {
+                document.getElementById('upcoming-appointments').innerHTML = '<p style="color:var(--text-light);font-size:13px">Could not load appointments. Is the server running?</p>';
+            }
+
+            try {
+                // Load prescriptions
+                const prsData = await API.get('/prescriptions');
+                const prs = prsData.prescriptions || [];
+                document.getElementById('stat-prescriptions').textContent = prs.length;
+
+                const prsContainer = document.getElementById('recent-prescriptions');
+                if (prs.length === 0) {
+                    prsContainer.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-light)">
+                        <div style="font-size:32px;margin-bottom:8px">💊</div>
+                        <p>No prescriptions on record</p>
+                    </div>`;
+                } else {
+                    prsContainer.innerHTML = prs.slice(0, 2).map(p => `
+                        <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-light)">
+                            <div style="font-size:24px">💊</div>
+                            <div style="flex:1">
+                                <div style="font-weight:700;font-size:13px">${p.diagnosis || 'Prescription'}</div>
+                                <div style="font-size:12px;color:var(--text-light)">${p.doctorName} • ${DateUtils.format(p.date)}</div>
+                            </div>
+                            <a href="/prescriptions.html" class="btn btn-outline btn-sm">View</a>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                document.getElementById('recent-prescriptions').innerHTML = '<p style="color:var(--text-light);font-size:13px">Could not load prescriptions.</p>';
+            }
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>

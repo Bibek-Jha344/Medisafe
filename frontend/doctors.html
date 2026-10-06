@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctors - MEDISAFE</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/index.html" class="navbar-brand"><div class="brand-icon">🏥</div>MEDI<span>SAFE</span></a>
+        <div class="navbar-nav">
+            <a href="/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/doctors.html" class="nav-link active">Doctors</a>
+            <button onclick="logout()" class="nav-btn btn-nav-outline" style="color:#dc3545;border-color:#dc3545">Logout</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-layout" style="padding-top:var(--navbar-height)">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-user"><div class="sidebar-avatar" id="sidebar-avatar">U</div><div class="sidebar-user-info"><div class="name" id="sidebar-name">User</div><div class="role">Patient</div></div></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Main</div>
+                    <a href="/dashboard.html" class="sidebar-link"><i>🏠</i> Dashboard</a>
+                    <a href="/symptoms.html" class="sidebar-link"><i>🔍</i> Symptom Check</a>
+                    <a href="/recommendations.html" class="sidebar-link"><i>💡</i> Recommendations</a>
+                </div>
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Healthcare</div>
+                    <a href="/doctors.html" class="sidebar-link active"><i>👨‍⚕️</i> Find Doctors</a>
+                    <a href="/appointments.html" class="sidebar-link"><i>📅</i> Appointments</a>
+                    <a href="/prescriptions.html" class="sidebar-link"><i>💊</i> Prescriptions</a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="card" style="margin-bottom:24px;">
+                <div class="card-header">
+                    <div class="card-title">👨‍⚕️ Specialist Directory</div>
+                </div>
+                <div class="card-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Specialty</label>
+                            <input type="text" id="specialtyFilter" class="form-control" placeholder="Orthopedic, Dermatologist...">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Location</label>
+                            <input type="text" id="locationFilter" class="form-control" placeholder="Kathmandu, Lalitpur...">
+                        </div>
+                        <div class="form-group" style="display:flex; align-items:end;">
+                            <button class="btn btn-primary" id="searchDoctorsBtn">Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="doctor-list" class="features-grid"></div>
+        </main>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw new Error('Not authenticated');
+        const user = Auth.getUser();
+        document.getElementById('sidebar-name').textContent = user?.name || 'User';
+        document.getElementById('sidebar-avatar').textContent = (user?.name || 'U').charAt(0).toUpperCase();
+
+        async function loadDoctors() {
+            const specialty = document.getElementById('specialtyFilter').value.trim();
+            const location = document.getElementById('locationFilter').value.trim();
+            const qs = new URLSearchParams();
+            if (specialty) qs.set('specialty', specialty);
+            if (location) qs.set('location', location);
+            try {
+                const data = await API.get(`/doctors${qs.toString() ? `?${qs.toString()}` : ''}`);
+                const list = document.getElementById('doctor-list');
+                if (!data.doctors || !data.doctors.length) {
+                    list.innerHTML = '<div class="card"><div class="card-body"><p style="text-align:center;color:var(--text-light)">No doctors found for your search.</p></div></div>';
+                    return;
+                }
+                list.innerHTML = data.doctors.map(doc => `
+                    <div class="feature-card">
+                        <div class="feature-icon icon-primary">👨‍⚕️</div>
+                        <h3 class="feature-title">${doc.name}</h3>
+                        <p class="feature-desc">${doc.specialty}</p>
+                        <div style="font-size:13px; color:var(--text-medium); margin:8px 0;">
+                            <div><strong>Experience:</strong> ${doc.experience} years</div>
+                            <div><strong>Location:</strong> ${doc.location}</div>
+                            <div><strong>Availability:</strong> ${doc.availableDays ? doc.availableDays.slice(0,2).join(', ') : 'Flexible'}</div>
+                            <div><strong>Rating:</strong> ${renderStars(doc.rating || 4.8)} ${doc.rating || '4.8'}</div>
+                        </div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+                            <a href="/appointments.html?doctorId=${doc._id}" class="btn btn-primary btn-sm">Book</a>
+                            <a href="/dashboard.html" class="btn btn-outline btn-sm">Profile</a>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                Toast.error(error.message || 'Unable to load doctors.');
+            }
+        }
+
+        document.getElementById('searchDoctorsBtn').addEventListener('click', loadDoctors);
+        loadDoctors();
+    </script>
+</body>
+</html>

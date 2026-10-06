@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - MEDISAFE</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/index.html" class="navbar-brand"><div class="brand-icon">🏥</div>MEDI<span>SAFE</span></a>
+        <div class="navbar-nav">
+            <a href="/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/settings.html" class="nav-link active">Settings</a>
+            <button onclick="logout()" class="nav-btn btn-nav-outline" style="color:#dc3545;border-color:#dc3545">Logout</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-layout" style="padding-top:var(--navbar-height)">
+        <aside class="sidebar">
+            <div class="sidebar-header"><div class="sidebar-user"><div class="sidebar-avatar" id="sidebar-avatar">U</div><div class="sidebar-user-info"><div class="name" id="sidebar-name">User</div><div class="role">Patient</div></div></div></div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-section"><div class="sidebar-section-title">Main</div><a href="/dashboard.html" class="sidebar-link"><i>🏠</i> Dashboard</a><a href="/profile.html" class="sidebar-link"><i>👤</i> Profile</a><a href="/settings.html" class="sidebar-link active"><i>⚙️</i> Settings</a></div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="card">
+                <div class="card-header"><div class="card-title">⚙️ Preferences</div></div>
+                <div class="card-body">
+                    <div class="form-group"><label class="form-label">Email notifications</label><input type="checkbox" checked> Receive reminder emails</div>
+                    <div class="form-group"><label class="form-label">Appointment reminders</label><input type="checkbox" checked> Receive SMS reminders</div>
+                    <div class="form-group"><label class="form-label">Physiotherapy updates</label><input type="checkbox" checked> Daily exercise reminders</div>
+                    <button class="btn btn-primary">Save Preferences</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw new Error('Not authenticated');
+        const user = Auth.getUser();
+        document.getElementById('sidebar-name').textContent = user?.name || 'User';
+        document.getElementById('sidebar-avatar').textContent = (user?.name || 'U').charAt(0).toUpperCase();
+        document.querySelector('.btn-primary').addEventListener('click', () => Toast.success('Settings saved successfully.'));
+    </script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - MEDISAFE</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/index.html" class="navbar-brand"><div class="brand-icon">🏥</div>MEDI<span>SAFE</span></a>
+        <div class="navbar-nav">
+            <a href="/admin.html" class="nav-link active">Admin</a>
+            <button onclick="logout()" class="nav-btn btn-nav-outline" style="color:#dc3545;border-color:#dc3545">Logout</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-layout" style="padding-top:var(--navbar-height)">
+        <aside class="sidebar">
+            <div class="sidebar-header"><div class="sidebar-user"><div class="sidebar-avatar">A</div><div class="sidebar-user-info"><div class="name">Admin</div><div class="role">Administrator</div></div></div></div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-section"><div class="sidebar-section-title">Overview</div><a href="/admin.html" class="sidebar-link active"><i>📊</i> Dashboard</a></div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div id="admin-stats" class="stats-grid"></div>
+            <div class="card" style="margin-bottom:24px;">
+                <div class="card-header"><div class="card-title">👥 User Management</div></div>
+                <div class="card-body"><div id="admin-users"></div></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">📅 Appointment Management</div></div>
+                <div class="card-body"><div id="admin-appointments"></div></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        async function loadAdminData() {
+            try {
+                const statsRes = await API.get('/admin/stats');
+                const usersRes = await API.get('/admin/users');
+                const appRes = await API.get('/admin/appointments');
+                const stats = statsRes.stats || {};
+                document.getElementById('admin-stats').innerHTML = `
+                    <div class="stat-card"><div class="stat-icon icon-primary">👥</div><div class="stat-info"><div class="value">${stats.activeUsers || 0}</div><div class="label">Total Users</div><div class="change change-positive">${stats.totalPatients || 0} patients</div></div></div>
+                    <div class="stat-card"><div class="stat-icon icon-secondary">👨‍⚕️</div><div class="stat-info"><div class="value">${stats.totalDoctors || 0}</div><div class="label">Doctors</div><div class="change change-positive">Specialists</div></div></div>
+                    <div class="stat-card"><div class="stat-icon icon-warning">📅</div><div class="stat-info"><div class="value">${stats.totalAppointments || 0}</div><div class="label">Appointments</div><div class="change change-positive">${stats.pendingAppointments || 0} pending</div></div></div>
+                    <div class="stat-card"><div class="stat-icon icon-accent">💊</div><div class="stat-info"><div class="value">${stats.totalPrescriptions || 0}</div><div class="label">Prescriptions</div><div class="change change-positive">On record</div></div></div>
+                `;
+
+                document.getElementById('admin-users').innerHTML = (usersRes.users || []).slice(0, 6).map(u => `
+                    <div style="padding:12px 0; border-bottom:1px solid var(--border-light); display:flex; justify-content:space-between; flex-wrap:wrap;">
+                        <div><strong>${u.name}</strong><div style="font-size:12px; color:var(--text-light);">${u.email}</div></div>
+                        <span class="badge badge-secondary">${u.role}</span>
+                    </div>
+                `).join('');
+
+                document.getElementById('admin-appointments').innerHTML = (appRes.appointments || []).slice(0, 6).map(a => `
+                    <div style="padding:12px 0; border-bottom:1px solid var(--border-light); display:flex; justify-content:space-between; flex-wrap:wrap;">
+                        <div><strong>${a.patientName}</strong><div style="font-size:12px; color:var(--text-light);">${a.doctorName} • ${DateUtils.format(a.date)}</div></div>
+                        ${statusBadge(a.status)}
+                    </div>
+                `).join('');
+            } catch (error) {
+                Toast.error(error.message || 'Unable to load admin data.');
+            }
+        }
+
+        loadAdminData();
+    </script>
+</body>
+</html>

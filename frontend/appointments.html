@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointments - MEDISAFE</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/index.html" class="navbar-brand"><div class="brand-icon">🏥</div>MEDI<span>SAFE</span></a>
+        <div class="navbar-nav">
+            <a href="/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/appointments.html" class="nav-link active">Appointments</a>
+            <button onclick="logout()" class="nav-btn btn-nav-outline" style="color:#dc3545;border-color:#dc3545">Logout</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-layout" style="padding-top:var(--navbar-height)">
+        <aside class="sidebar">
+            <div class="sidebar-header"><div class="sidebar-user"><div class="sidebar-avatar" id="sidebar-avatar">U</div><div class="sidebar-user-info"><div class="name" id="sidebar-name">User</div><div class="role">Patient</div></div></div></div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-section"><div class="sidebar-section-title">Main</div><a href="/dashboard.html" class="sidebar-link"><i>🏠</i> Dashboard</a><a href="/symptoms.html" class="sidebar-link"><i>🔍</i> Symptom Check</a><a href="/recommendations.html" class="sidebar-link"><i>💡</i> Recommendations</a></div>
+                <div class="sidebar-section"><div class="sidebar-section-title">Healthcare</div><a href="/doctors.html" class="sidebar-link"><i>👨‍⚕️</i> Find Doctors</a><a href="/appointments.html" class="sidebar-link active"><i>📅</i> Appointments</a><a href="/prescriptions.html" class="sidebar-link"><i>💊</i> Prescriptions</a></div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="card" style="margin-bottom:24px;">
+                <div class="card-header"><div class="card-title">📅 Book Appointment</div></div>
+                <div class="card-body">
+                    <form id="appointment-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Doctor</label>
+                                <select id="doctorId" class="form-select" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Date</label>
+                                <input type="date" id="appointmentDate" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Time</label>
+                                <input type="time" id="appointmentTime" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Reason</label>
+                                <input type="text" id="reason" class="form-control" placeholder="Follow-up, pain review, physiotherapy..."></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Book Appointment</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><div class="card-title">🗓️ Appointment History</div></div>
+                <div class="card-body" id="appointment-list"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw new Error('Not authenticated');
+        const user = Auth.getUser();
+        document.getElementById('sidebar-name').textContent = user?.name || 'User';
+        document.getElementById('sidebar-avatar').textContent = (user?.name || 'U').charAt(0).toUpperCase();
+
+        async function loadDoctorsForBooking() {
+            const select = document.getElementById('doctorId');
+            const data = await API.get('/doctors');
+            select.innerHTML = '<option value="">Select doctor</option>' + data.doctors.map(doc => `<option value="${doc._id}">${doc.name} - ${doc.specialty}</option>`).join('');
+        }
+
+        async function loadAppointments() {
+            const list = document.getElementById('appointment-list');
+            try {
+                const data = await API.get('/appointments');
+                const appointments = data.appointments || [];
+                if (!appointments.length) {
+                    list.innerHTML = '<p style="color:var(--text-light); text-align:center;">No appointments yet.</p>';
+                    return;
+                }
+                list.innerHTML = appointments.map(item => `
+                    <div style="display:flex; justify-content:space-between; gap:16px; padding:14px 0; border-bottom:1px solid var(--border-light); flex-wrap:wrap;">
+                        <div>
+                            <div style="font-weight:700;">${item.doctorName}</div>
+                            <div style="font-size:13px; color:var(--text-light);">${item.specialty} • ${DateUtils.format(item.date)} • ${DateUtils.formatTime(item.time)}</div>
+                            <div style="font-size:13px; color:var(--text-light); margin-top:4px;">${item.reason || 'General consultation'}</div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                            ${statusBadge(item.status)}
+                            ${item.status !== 'cancelled' ? `<button class="btn btn-outline btn-sm" onclick="cancelAppointment('${item._id}')">Cancel</button>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                list.innerHTML = '<p style="color:var(--text-light)">Unable to load appointments.</p>';
+                Toast.error(error.message || 'Could not load appointments');
+            }
+        }
+
+        document.getElementById('appointment-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                doctorId: document.getElementById('doctorId').value,
+                date: document.getElementById('appointmentDate').value,
+                time: document.getElementById('appointmentTime').value,
+                reason: document.getElementById('reason').value
+            };
+            try {
+                await API.post('/appointments', payload);
+                Toast.success('Appointment booked successfully.');
+                e.target.reset();
+                loadAppointments();
+            } catch (error) {
+                Toast.error(error.message || 'Unable to book appointment.');
+            }
+        });
+
+        window.cancelAppointment = async function(id) {
+            try {
+                await API.put(`/appointments/${id}/cancel`);
+                Toast.success('Appointment cancelled.');
+                loadAppointments();
+            } catch (error) {
+                Toast.error(error.message || 'Unable to cancel appointment');
+            }
+        };
+
+        loadDoctorsForBooking();
+        loadAppointments();
+    </script>
+</body>
+</html>

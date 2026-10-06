@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescriptions - MEDISAFE</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/index.html" class="navbar-brand"><div class="brand-icon">🏥</div>MEDI<span>SAFE</span></a>
+        <div class="navbar-nav">
+            <a href="/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/prescriptions.html" class="nav-link active">Prescriptions</a>
+            <button onclick="logout()" class="nav-btn btn-nav-outline" style="color:#dc3545;border-color:#dc3545">Logout</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-layout" style="padding-top:var(--navbar-height)">
+        <aside class="sidebar">
+            <div class="sidebar-header"><div class="sidebar-user"><div class="sidebar-avatar" id="sidebar-avatar">U</div><div class="sidebar-user-info"><div class="name" id="sidebar-name">User</div><div class="role">Patient</div></div></div></div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-section"><div class="sidebar-section-title">Main</div><a href="/dashboard.html" class="sidebar-link"><i>🏠</i> Dashboard</a><a href="/symptoms.html" class="sidebar-link"><i>🔍</i> Symptom Check</a><a href="/recommendations.html" class="sidebar-link"><i>💡</i> Recommendations</a></div>
+                <div class="sidebar-section"><div class="sidebar-section-title">Healthcare</div><a href="/doctors.html" class="sidebar-link"><i>👨‍⚕️</i> Find Doctors</a><a href="/appointments.html" class="sidebar-link"><i>📅</i> Appointments</a><a href="/prescriptions.html" class="sidebar-link active"><i>💊</i> Prescriptions</a></div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="card" style="margin-bottom:24px;">
+                <div class="card-header"><div class="card-title">💊 Prescription Overview</div></div>
+                <div class="card-body">
+                    <form id="prescription-upload-form">
+                        <div class="form-row">
+                            <div class="form-group"><label class="form-label">Doctor</label><input type="text" class="form-control" id="doctorName" value="Dr. Anjali Sharma"></div>
+                            <div class="form-group"><label class="form-label">Diagnosis</label><input type="text" class="form-control" id="diagnosis" placeholder="Knee pain, allergy..."></div>
+                        </div>
+                        <div class="form-group"><label class="form-label">Instructions</label><textarea id="instructions" class="form-control" rows="3"></textarea></div>
+                        <div class="form-group"><label class="form-label">Upload prescription</label><input type="file" id="prescriptionFile" class="form-control" accept=".pdf,.jpg,.jpeg,.png"></div>
+                        <button class="btn btn-primary" type="submit">Upload / Save</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><div class="card-title">📄 Prescription Records</div></div>
+                <div class="card-body" id="prescription-list"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw new Error('Not authenticated');
+        const user = Auth.getUser();
+        document.getElementById('sidebar-name').textContent = user?.name || 'User';
+        document.getElementById('sidebar-avatar').textContent = (user?.name || 'U').charAt(0).toUpperCase();
+
+        async function loadPrescriptions() {
+            try {
+                const data = await API.get('/prescriptions');
+                const meds = data.prescriptions || [];
+                const list = document.getElementById('prescription-list');
+                if (!meds.length) {
+                    list.innerHTML = '<p style="color:var(--text-light); text-align:center;">No prescriptions available.</p>';
+                    return;
+                }
+                list.innerHTML = meds.map(item => `
+                    <div style="padding:18px 0; border-bottom:1px solid var(--border-light);">
+                        <div style="display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+                            <div>
+                                <div style="font-weight:700;">${item.doctorName}</div>
+                                <div style="font-size:13px; color:var(--text-light);">${DateUtils.format(item.date)} • ${item.diagnosis || 'Medical review'}</div>
+                            </div>
+                            <span class="badge badge-success">Active</span>
+                        </div>
+                        <div style="margin-top:12px; font-size:13px; color:var(--text-medium);">
+                            ${(item.medicines || []).map(m => `<div style="margin-bottom:6px;">${m.name} • ${m.dosage} • ${m.frequency}</div>`).join('') || '<div>No medications listed.</div>'}
+                            <div style="margin-top:10px;"><strong>Instructions:</strong> ${item.instructions || 'Follow your physician guidance.'}</div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                Toast.error(error.message || 'Unable to load prescriptions');
+            }
+        }
+
+        document.getElementById('prescription-upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('doctorName', document.getElementById('doctorName').value);
+            formData.append('diagnosis', document.getElementById('diagnosis').value);
+            formData.append('instructions', document.getElementById('instructions').value);
+            const file = document.getElementById('prescriptionFile').files[0];
+            if (file) formData.append('prescription', file);
+            try {
+                await API.postForm('/prescriptions', formData);
+                Toast.success('Prescription saved successfully.');
+                e.target.reset();
+                loadPrescriptions();
+            } catch (error) {
+                Toast.error(error.message || 'Unable to save prescription');
+            }
+        });
+
+        loadPrescriptions();
+    </script>
+</body>
+</html>

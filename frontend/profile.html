@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - MEDISAFE</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/index.html" class="navbar-brand"><div class="brand-icon">🏥</div>MEDI<span>SAFE</span></a>
+        <div class="navbar-nav">
+            <a href="/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/profile.html" class="nav-link active">Profile</a>
+            <button onclick="logout()" class="nav-btn btn-nav-outline" style="color:#dc3545;border-color:#dc3545">Logout</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-layout" style="padding-top:var(--navbar-height)">
+        <aside class="sidebar">
+            <div class="sidebar-header"><div class="sidebar-user"><div class="sidebar-avatar" id="sidebar-avatar">U</div><div class="sidebar-user-info"><div class="name" id="sidebar-name">User</div><div class="role">Patient</div></div></div></div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-section"><div class="sidebar-section-title">Main</div><a href="/dashboard.html" class="sidebar-link"><i>🏠</i> Dashboard</a><a href="/symptoms.html" class="sidebar-link"><i>🔍</i> Symptom Check</a><a href="/recommendations.html" class="sidebar-link"><i>💡</i> Recommendations</a></div>
+                <div class="sidebar-section"><div class="sidebar-section-title">Account</div><a href="/profile.html" class="sidebar-link active"><i>👤</i> Profile</a><a href="/settings.html" class="sidebar-link"><i>⚙️</i> Settings</a></div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="card">
+                <div class="card-header"><div class="card-title">👤 My Profile</div></div>
+                <div class="card-body" id="profile-content"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw new Error('Not authenticated');
+        const user = Auth.getUser();
+        document.getElementById('sidebar-name').textContent = user?.name || 'User';
+        document.getElementById('sidebar-avatar').textContent = (user?.name || 'U').charAt(0).toUpperCase();
+
+        async function loadProfile() {
+            try {
+                const data = await API.get('/auth/me');
+                const person = data.user || {};
+                document.getElementById('profile-content').innerHTML = `
+                    <div style="display:flex; gap:20px; flex-wrap:wrap; align-items:center; margin-bottom:24px;">
+                        <div style="width:78px; height:78px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#0d6efd,#20c997); color:#fff; font-size:28px; font-weight:800;">${(person.name || 'U').charAt(0).toUpperCase()}</div>
+                        <div>
+                            <h2 style="font-size:28px; margin-bottom:4px;">${person.name || 'Patient'}</h2>
+                            <div class="badge badge-success">${person.role || 'patient'}</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Email</label><input class="form-control" value="${person.email || ''}" readonly></div>
+                        <div class="form-group"><label class="form-label">Phone</label><input class="form-control" value="${person.phone || ''}" readonly></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="form-label">Age</label><input class="form-control" value="${person.age || ''}" readonly></div>
+                        <div class="form-group"><label class="form-label">Gender</label><input class="form-control" value="${person.gender || ''}" readonly></div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Address</label><input class="form-control" value="${person.address || ''}" readonly></div>
+                    <div class="form-group"><label class="form-label">Medical History</label><textarea class="form-control" rows="3" readonly>${(person.medicalHistory || []).join(', ') || 'No medical history recorded yet.'}</textarea></div>
+                `;
+            } catch (error) {
+                document.getElementById('profile-content').innerHTML = '<p style="color:var(--text-light)">Unable to load profile data.</p>';
+            }
+        }
+
+        loadProfile();
+    </script>
+</body>
+</html>

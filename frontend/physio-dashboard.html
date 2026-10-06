@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physiotherapist Dashboard - MEDISAFE</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/index.html" class="navbar-brand"><div class="brand-icon">🏥</div>MEDI<span>SAFE</span></a>
+        <div class="navbar-nav">
+            <a href="/physio-dashboard.html" class="nav-link active">Physiotherapy</a>
+            <button onclick="logout()" class="nav-btn btn-nav-outline" style="color:#dc3545;border-color:#dc3545">Logout</button>
+        </div>
+    </nav>
+    <div class="dashboard-layout" style="padding-top:var(--navbar-height)">
+        <aside class="sidebar">
+            <div class="sidebar-header"><div class="sidebar-user"><div class="sidebar-avatar">P</div><div class="sidebar-user-info"><div class="name">Physio Team</div><div class="role">Recovery Plans</div></div></div></div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-section"><div class="sidebar-section-title">Overview</div><a href="/physio-dashboard.html" class="sidebar-link active"><i>📊</i> Dashboard</a></div>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-icon icon-primary">🏃</div><div class="stat-info"><div class="value">8</div><div class="label">Patients</div><div class="change change-positive">In therapy</div></div></div>
+                <div class="stat-card"><div class="stat-icon icon-secondary">📈</div><div class="stat-info"><div class="value">82%</div><div class="label">Avg Recovery</div><div class="change change-positive">Strong progress</div></div></div>
+                <div class="stat-card"><div class="stat-icon icon-warning">📋</div><div class="stat-info"><div class="value">4</div><div class="label">Plans</div><div class="change change-positive">Assigned</div></div></div>
+            </div>
+            <div class="card"><div class="card-header"><div class="card-title">🧑‍⚕️ Active Therapy Plans</div></div><div class="card-body">
+                <div style="padding:12px 0; border-bottom:1px solid var(--border-light);"><strong>Bibek Jha</strong><div style="font-size:12px; color:var(--text-light)">Knee mobility and strength plan</div></div>
+                <div style="padding:12px 0;"><strong>Shreya K.C.</strong><div style="font-size:12px; color:var(--text-light)">Shoulder mobility and flexibility plan</div></div>
+            </div></div>
+        </main>
+    </div>
+    <script src="/js/main.js"></script>
+</body>
+</html>

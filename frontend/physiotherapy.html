@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physiotherapy - MEDISAFE</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/index.html" class="navbar-brand"><div class="brand-icon">🏥</div>MEDI<span>SAFE</span></a>
+        <div class="navbar-nav">
+            <a href="/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/physiotherapy.html" class="nav-link active">Physiotherapy</a>
+            <button onclick="logout()" class="nav-btn btn-nav-outline" style="color:#dc3545;border-color:#dc3545">Logout</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-layout" style="padding-top:var(--navbar-height)">
+        <aside class="sidebar">
+            <div class="sidebar-header"><div class="sidebar-user"><div class="sidebar-avatar" id="sidebar-avatar">U</div><div class="sidebar-user-info"><div class="name" id="sidebar-name">User</div><div class="role">Patient</div></div></div></div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-section"><div class="sidebar-section-title">Main</div><a href="/dashboard.html" class="sidebar-link"><i>🏠</i> Dashboard</a><a href="/symptoms.html" class="sidebar-link"><i>🔍</i> Symptom Check</a><a href="/recommendations.html" class="sidebar-link"><i>💡</i> Recommendations</a></div>
+                <div class="sidebar-section"><div class="sidebar-section-title">Physiotherapy</div><a href="/physiotherapy.html" class="sidebar-link active"><i>🏃</i> Exercises</a><a href="/progress.html" class="sidebar-link"><i>📊</i> Progress</a></div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="card">
+                <div class="card-header"><div class="card-title">🏃 Exercise Library</div></div>
+                <div class="card-body">
+                    <div id="exercise-list" class="features-grid"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw new Error('Not authenticated');
+        const user = Auth.getUser();
+        document.getElementById('sidebar-name').textContent = user?.name || 'User';
+        document.getElementById('sidebar-avatar').textContent = (user?.name || 'U').charAt(0).toUpperCase();
+
+        async function loadExercises() {
+            try {
+                const data = await API.get('/exercises');
+                const list = document.getElementById('exercise-list');
+                list.innerHTML = (data.exercises || []).map(ex => `
+                    <div class="feature-card">
+                        <div class="feature-icon icon-secondary">🏃</div>
+                        <h3 class="feature-title">${ex.name}</h3>
+                        <p class="feature-desc">${ex.targetArea || ex.category}</p>
+                        <div style="font-size:13px; color:var(--text-medium); margin:10px 0;">
+                            <div><strong>Difficulty:</strong> ${ex.difficulty}</div>
+                            <div><strong>Duration:</strong> ${ex.duration}</div>
+                            <div><strong>Repetitions:</strong> ${ex.repetitions}</div>
+                        </div>
+                        <div style="font-size:12px; color:var(--text-light); margin-bottom:10px;">${ex.benefits}</div>
+                        <button class="btn btn-primary btn-sm" onclick="completeExercise('${ex.name}')">Mark Completed</button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                Toast.error(error.message || 'Unable to load exercises');
+            }
+        }
+
+        window.completeExercise = function(name) {
+            Toast.success(`${name} marked complete.`);
+        };
+
+        loadExercises();
+    </script>
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEDISAFE - Local Healthcare & Physiotherapy Support Platform</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .how-it-works { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 24px; }
+        .how-step { text-align: center; padding: 32px 20px; }
+        .step-num { width:56px;height:56px;border-radius:50%;background:var(--primary);color:white;font-size:20px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 16px; }
+        .step-title { font-size:16px;font-weight:700;color:var(--text-dark);margin-bottom:8px; }
+        .step-desc { font-size:14px;color:var(--text-light); }
+        .cta-section { background:linear-gradient(135deg, #0d6efd, #0dcaf0); padding:80px 0; text-align:center; }
+        .cta-section h2 { font-size:36px;font-weight:800;color:white;margin-bottom:16px; }
+        .cta-section p { font-size:17px;color:rgba(255,255,255,0.85);margin-bottom:32px;max-width:600px;margin-left:auto;margin-right:auto; }
+        .testimonials-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px; }
+        .testimonial-card { background:var(--bg-white);border-radius:var(--radius-md);padding:28px;box-shadow:var(--shadow-sm);border:1px solid var(--border-light); }
+        .testimonial-text { font-size:15px;color:var(--text-medium);line-height:1.7;margin-bottom:16px;font-style:italic; }
+        .testimonial-author { display:flex;align-items:center;gap:12px; }
+        .testimonial-avatar { width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:white;font-weight:700; }
+        .testimonial-name { font-weight:700;font-size:14px;color:var(--text-dark); }
+        .testimonial-role { font-size:12px;color:var(--text-light); }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="/index.html" class="navbar-brand">
+            <div class="brand-icon">🏥</div>
+            MEDI<span>SAFE</span>
+        </a>
+        <div class="navbar-nav">
+            <a href="/index.html" class="nav-link active">Home</a>
+            <a href="/doctors.html" class="nav-link">Doctors</a>
+            <a href="/physiotherapy.html" class="nav-link">Physiotherapy</a>
+            <div id="nav-auth" style="display:flex;gap:8px;align-items:center">
+                <a href="/login.html" class="nav-btn btn-nav-outline">Login</a>
+                <a href="/register.html" class="nav-btn btn-nav-primary">Get Started</a>
+            </div>
+            <div id="nav-user" style="display:none;gap:8px;align-items:center">
+                <a href="/dashboard.html" class="nav-link">Dashboard</a>
+                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0d6efd,#20c997);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;cursor:pointer;font-size:14px" onclick="window.location='/profile.html'">
+                    <span id="nav-user-name">U</span>
+                </div>
+                <button onclick="logout()" class="nav-btn btn-nav-outline" style="color:#dc3545;border-color:#dc3545">Logout</button>
+            </div>
+        </div>
+        <button class="navbar-mobile-toggle" id="mobile-toggle">☰</button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-text fade-in">
+                <div class="hero-badge">🏥 Healthcare Platform</div>
+                <h1 class="hero-title">
+                    Your Complete <span class="highlight">Healthcare</span> & Physiotherapy Support
+                </h1>
+                <p class="hero-desc">
+                    MEDISAFE connects you with qualified doctors, provides smart symptom assessment using rule-based recommendations, and guides your physiotherapy recovery journey — all in one platform.
+                </p>
+                <div class="hero-actions">
+                    <a href="/register.html" class="btn btn-primary btn-xl btn-rounded">Get Started Free</a>
+                    <a href="/doctors.html" class="btn btn-outline btn-xl btn-rounded">Find Doctors</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <span class="number">50+</span>
+                        <span class="label">Doctors</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="number">500+</span>
+                        <span class="label">Patients Helped</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="number">8+</span>
+                        <span class="label">Specialties</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="number">95%</span>
+                        <span class="label">Satisfaction</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-card" style="background:white">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+                        <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0d6efd,#20c997);display:flex;align-items:center;justify-content:center;color:white;font-size:20px;font-weight:700">B</div>
+                        <div>
+                            <div style="font-weight:700;font-size:15px;color:#1a1a2e">Bibek Jha</div>
+                            <div style="font-size:12px;color:#6c757d">Recovery Progress</div>
+                        </div>
+                        <div style="margin-left:auto">
+                            <span class="badge badge-success">On Track</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-bar-label"><span>Recovery Score</span><span>82%</span></div>
+                        <div class="progress-bar"><div class="progress-bar-fill progress-secondary" style="width:82%"></div></div>
+                    </div>
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-bar-label"><span>Exercises Completed</span><span>5/5</span></div>
+                        <div class="progress-bar"><div class="progress-bar-fill progress-primary" style="width:100%"></div></div>
+                    </div>
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-bar-label"><span>Pain Level</span><span>2/10</span></div>
+                        <div class="progress-bar"><div class="progress-bar-fill" style="width:20%;background:#dc3545"></div></div>
+                    </div>
+                </div>
+                <div class="hero-card-row">
+                    <div class="hero-card-mini">
+                        <div style="font-size:24px;margin-bottom:8px">👨‍⚕️</div>
+                        <div style="font-weight:700;font-size:14px;color:#1a1a2e">Dr. Anjali Sharma</div>
+                        <div style="font-size:12px;color:#0d6efd">Orthopedic</div>
+                        <div style="margin-top:10px">
+                            <a href="/appointments.html" class="btn btn-primary btn-sm btn-block">Book Now</a>
+                        </div>
+                    </div>
+                    <div class="hero-card-mini">
+                        <div style="font-size:24px;margin-bottom:8px">💊</div>
+                        <div style="font-weight:700;font-size:14px;color:#1a1a2e">Next Appointment</div>
+                        <div style="font-size:12px;color:#6c757d">Mar 10, 2024</div>
+                        <div style="font-size:12px;color:#6c757d">2:00 PM</div>
+                        <div style="margin-top:10px">
+                            <span class="badge badge-success">Confirmed</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section section-light">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">✨ Features</div>
+                <h2 class="section-title">Everything You Need for Better Health</h2>
+                <p class="section-desc">MEDISAFE provides a comprehensive suite of healthcare tools designed for patients seeking quality care and physiotherapy support.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-primary">🔍</div>
+                    <h3 class="feature-title">Symptom Assessment</h3>
+                    <p class="feature-desc">Describe your symptoms through our structured assessment. Our rule-based system evaluates your input and provides intelligent recommendations.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-secondary">👨‍⚕️</div>
+                    <h3 class="feature-title">Doctor Recommendations</h3>
+                    <p class="feature-desc">Based on your symptoms and body area affected, MEDISAFE recommends the most suitable medical specialists in your area.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-accent">📅</div>
+                    <h3 class="feature-title">Appointment Booking</h3>
+                    <p class="feature-desc">Book appointments with qualified doctors in just a few clicks. View availability, choose time slots, and manage all your appointments easily.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-warning">🏃</div>
+                    <h3 class="feature-title">Physiotherapy Guidance</h3>
+                    <p class="feature-desc">Access guided physiotherapy exercises with step-by-step instructions, safety guidance, and progress tracking for effective recovery.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-danger">💊</div>
+                    <h3 class="feature-title">Prescription Management</h3>
+                    <p class="feature-desc">Securely store, view, and manage your prescriptions. Track medications, dosages, and follow-up schedules all in one place.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-purple">📊</div>
+                    <h3 class="feature-title">Progress Tracking</h3>
+                    <p class="feature-desc">Monitor your recovery journey with detailed progress charts, joint angle analysis, exercise completion tracking, and recovery scores.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="section section-alt">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">🔄 Process</div>
+                <h2 class="section-title">How MEDISAFE Works</h2>
+                <p class="section-desc">A simple, guided process from symptom assessment to recovery support.</p>
+            </div>
+            <div class="how-it-works">
+                <div class="how-step">
+                    <div class="step-num">1</div>
+                    <div class="step-title">Register & Login</div>
+                    <div class="step-desc">Create your patient account with basic health information to get personalized healthcare support.</div>
+                </div>
+                <div class="how-step">
+                    <div class="step-num">2</div>
+                    <div class="step-title">Describe Symptoms</div>
+                    <div class="step-desc">Use our structured symptom assessment to describe your condition including body area, pain level, and duration.</div>
+                </div>
+                <div class="how-step">
+                    <div class="step-num">3</div>
+                    <div class="step-title">Get Recommendations</div>
+                    <div class="step-desc">Our rule-based engine analyzes your inputs and recommends the appropriate specialist and physiotherapy support.</div>
+                </div>
+                <div class="how-step">
+                    <div class="step-num">4</div>
+                    <div class="step-title">Book Appointment</div>
+                    <div class="step-desc">Schedule a consultation with the recommended doctor at a time that suits you.</div>
+                </div>
+                <div class="how-step">
+                    <div class="step-num">5</div>
+                    <div class="step-title">Follow Treatment</div>
+                    <div class="step-desc">Access guided exercises, manage prescriptions, and track your recovery progress over time.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Doctors Preview -->
+    <section class="section section-light">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">👨‍⚕️ Our Specialists</div>
+                <h2 class="section-title">Meet Our Expert Doctors</h2>
+                <p class="section-desc">Qualified specialists across multiple medical disciplines ready to provide expert care.</p>
+            </div>
+            <div class="features-grid" id="doctors-preview">
+                <div style="text-align:center;padding:40px;grid-column:1/-1">
+                    <div class="loading-spinner"></div>
+                    <p style="margin-top:16px;color:var(--text-light)">Loading doctors...</p>
+                </div>
+            </div>
+            <div style="text-align:center;margin-top:32px">
+                <a href="/doctors.html" class="btn btn-outline btn-lg btn-rounded">View All Doctors</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="section section-alt">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">💬 Testimonials</div>
+                <h2 class="section-title">What Our Patients Say</h2>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"MEDISAFE helped me identify my knee issue quickly. The symptom assessment pointed me to the right orthopedic specialist, and the physiotherapy exercises have significantly improved my mobility."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">S</div>
+                        <div>
+                            <div class="testimonial-name">Sita Sharma</div>
+                            <div class="testimonial-role">Patient, Kathmandu</div>
+                        </div>
+                        <div style="margin-left:auto;color:#ffc107">★★★★★</div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"The appointment booking system is extremely convenient. I was able to book with Dr. Anjali Sharma and manage all my follow-up appointments from the dashboard."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">R</div>
+                        <div>
+                            <div class="testimonial-name">Ramesh Adhikari</div>
+                            <div class="testimonial-role">Patient, Lalitpur</div>
+                        </div>
+                        <div style="margin-left:auto;color:#ffc107">★★★★★</div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"The physiotherapy exercises provided are well-explained with clear safety guidance. My shoulder pain has improved significantly after following the recommended exercise program."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">P</div>
+                        <div>
+                            <div class="testimonial-name">Priya Thapa</div>
+                            <div class="testimonial-role">Patient, Bhaktapur</div>
+                        </div>
+                        <div style="margin-left:auto;color:#ffc107">★★★★☆</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>Start Your Health Journey Today</h2>
+            <p>Join MEDISAFE and get access to qualified doctors, smart symptom assessment, and comprehensive physiotherapy support.</p>
+            <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+                <a href="/register.html" class="btn btn-outline-white btn-xl btn-rounded">Create Free Account</a>
+                <a href="/symptoms.html" class="btn btn-xl btn-rounded" style="background:white;color:var(--primary)">Assess Symptoms</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="brand-name">🏥 MEDISAFE</div>
+                    <p class="brand-desc">A local healthcare and physiotherapy support platform designed to help patients access quality medical care and recovery guidance.</p>
+                    <p style="margin-top:12px;font-size:13px;color:rgba(255,255,255,0.4)">Final Year Project — Bibek Jha</p>
+                </div>
+                <div>
+                    <h4 class="footer-heading">Quick Links</h4>
+                    <div class="footer-links">
+                        <a href="/index.html" class="footer-link">Home</a>
+                        <a href="/doctors.html" class="footer-link">Find Doctors</a>
+                        <a href="/physiotherapy.html" class="footer-link">Physiotherapy</a>
+                        <a href="/symptoms.html" class="footer-link">Symptom Check</a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="footer-heading">For Patients</h4>
+                    <div class="footer-links">
+                        <a href="/register.html" class="footer-link">Register</a>
+                        <a href="/login.html" class="footer-link">Login</a>
+                        <a href="/appointments.html" class="footer-link">Appointments</a>
+                        <a href="/prescriptions.html" class="footer-link">Prescriptions</a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="footer-heading">Support</h4>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">Help Center</a>
+                        <a href="#" class="footer-link">Privacy Policy</a>
+                        <a href="#" class="footer-link">Terms of Service</a>
+                        <a href="#" class="footer-link">Contact Us</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2024 MEDISAFE. All rights reserved. | Final Year Project</p>
+                <p>Built with Node.js • Express.js • MongoDB</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script>
+        // Load preview doctors
+        async function loadDoctorsPreview() {
+            try {
+                const resp = await fetch('/api/doctors');
+                const data = await resp.json();
+                const container = document.getElementById('doctors-preview');
+                if (data.doctors && data.doctors.length > 0) {
+                    const preview = data.doctors.slice(0, 3);
+                    container.innerHTML = preview.map(doc => `
+                        <div class="doctor-card">
+                            <div class="doctor-img-area">
+                                <div class="doctor-avatar">${doc.name.charAt(3)}</div>
+                                <span class="doctor-badge">${doc.specialty}</span>
+                            </div>
+                            <div class="doctor-info">
+                                <div class="doctor-name">${doc.name}</div>
+                                <div class="doctor-specialty">${doc.specialty}</div>
+                                <div class="doctor-meta">
+                                    <div class="doctor-meta-item"><i>🏥</i><span>${doc.hospital}</span></div>
+                                    <div class="doctor-meta-item"><i>📍</i><span>${doc.location}</span></div>
+                                    <div class="doctor-meta-item"><i>⏱</i><span>${doc.experience} years experience</span></div>
+                                </div>
+                                <div class="doctor-rating">${renderStars(doc.rating)} <span>${doc.rating} (${doc.reviewCount} reviews)</span></div>
+                                <div class="doctor-actions">
+                                    <a href="/doctor-details.html?id=${doc._id}" class="btn btn-outline btn-sm" style="flex:1">View Profile</a>
+                                    <a href="/doctor-details.html?id=${doc._id}" class="btn btn-primary btn-sm" style="flex:1">Book</a>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                document.getElementById('doctors-preview').innerHTML = '<p style="text-align:center;color:var(--text-light);padding:40px;grid-column:1/-1">Could not load doctors. Please start the backend server.</p>';
+            }
+        }
+
+        loadDoctorsPreview();
+    </script>
+</body>
+</html>

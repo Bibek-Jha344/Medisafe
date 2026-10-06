@@ -2,6 +2,8 @@ node_modules/
 backend/node_modules/
 .env
 .env.*
+!.env.example
+!backend/.env.example
 .DS_Store
 npm-debug.log*
 backend/uploads/

@@ -3,7 +3,7 @@
  * Shared across all pages
  */
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = '/api';
 
 // ─── AUTH UTILITIES ──────────────────────────────
 const Auth = {
